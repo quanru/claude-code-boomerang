@@ -1,0 +1,5 @@
+debug.log
+*.log.tmp
+.DS_Store
+*.backup.*
+settings.json.backup.*

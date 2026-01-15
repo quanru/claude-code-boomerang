@@ -1,4 +1,6 @@
-# Claude Code Desktop Notifications for macOS
+# Claude Code Boomerang
+
+[简体中文](./README-ZH.md) | English
 
 > Get desktop notifications when Claude Code tasks complete. Click to jump to your VS Code window.
 
@@ -8,7 +10,6 @@
 - ✅ Click to jump to VS Code workspace
 - ✅ Only one notification per project
 - ✅ Auto-skip when already in target window
-- ✅ Automatic log rotation
 - ✅ Zero dependencies (macOS native + alerter)
 
 ## Quick Install

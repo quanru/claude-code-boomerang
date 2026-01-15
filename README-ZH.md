@@ -1,4 +1,6 @@
-# Claude Code 桌面通知 (macOS)
+# Claude Code 回旋镖
+
+简体中文 | [English](./README.md)
 
 > 当 Claude Code 任务完成时接收桌面通知，点击即可跳转到 VS Code 窗口。
 
@@ -8,7 +10,6 @@
 - ✅ 点击通知跳转到 VS Code 工作区
 - ✅ 每个项目只显示一个通知
 - ✅ 已在目标窗口时自动跳过
-- ✅ 自动日志轮转
 - ✅ 零依赖（macOS 原生 + alerter）
 
 ## 快速安装

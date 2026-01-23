@@ -20,6 +20,11 @@
 curl -fsSL https://raw.githubusercontent.com/quanru/claude-code-boomerang/main/install.sh | bash
 ```
 
+The installer will automatically:
+- Clone the repository to `~/.claude/hooks/notify`
+- Configure hooks in `~/.claude/settings.json`
+- Set up all required permissions
+
 ### Manual Install
 
 ```bash

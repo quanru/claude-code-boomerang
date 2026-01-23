@@ -17,14 +17,14 @@
 ### 一键安装（推荐）
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/quanru/claude-code-notify/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/quanru/claude-code-boomerang/main/install.sh | bash
 ```
 
 ### 手动安装
 
 ```bash
 # 克隆仓库
-git clone https://github.com/quanru/claude-code-notify ~/.claude/hooks/notify
+git clone https://github.com/quanru/claude-code-boomerang ~/.claude/hooks/notify
 
 # 运行安装脚本
 ~/.claude/hooks/notify/install.sh

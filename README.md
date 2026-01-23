@@ -17,14 +17,14 @@
 ### One-Line Install (Recommended)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/quanru/claude-code-notify/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/quanru/claude-code-boomerang/main/install.sh | bash
 ```
 
 ### Manual Install
 
 ```bash
 # Clone repository
-git clone https://github.com/quanru/claude-code-notify ~/.claude/hooks/notify
+git clone https://github.com/quanru/claude-code-boomerang ~/.claude/hooks/notify
 
 # Run installer
 ~/.claude/hooks/notify/install.sh

@@ -87,6 +87,23 @@ log_rotate
 
 debug_log "Script started, hook_type: [$hook_type], CLAUDE_PROJECT_DIR: [$CLAUDE_PROJECT_DIR]"
 
+# Deduplication: use mkdir as atomic lock to prevent concurrent notifications
+lock_path="${CLAUDE_PLUGIN_ROOT:-~/.claude/hooks/notify}/.notify_lock_dir"
+# Clean up stale lock (older than 3 seconds)
+if [ -d "$lock_path" ]; then
+  lock_age=$(( $(date +%s) - $(stat -f %m "$lock_path" 2>/dev/null || echo 0) ))
+  if [ "$lock_age" -gt 3 ]; then
+    rmdir "$lock_path" 2>/dev/null
+  fi
+fi
+# Atomic lock: mkdir only succeeds for one process
+if ! mkdir "$lock_path" 2>/dev/null; then
+  debug_log "SKIPPED: Dedup - another notification in progress"
+  exit 0
+fi
+# Auto-release lock after 2 seconds
+(sleep 2 && rmdir "$lock_path" 2>/dev/null) &
+
 # 检测是否在 VSCode 终端中执行
 if [ "$TERM_PROGRAM" != "vscode" ]; then
   debug_log "SKIPPED: Not running in VSCode terminal (TERM_PROGRAM=$TERM_PROGRAM)"

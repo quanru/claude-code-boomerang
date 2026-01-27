@@ -184,18 +184,18 @@ nohup bash -c "
     fi
   }
 
-  # Build alerter command with sound (check if sound is enabled)
-  alerter_cmd=\"\${plugin_root}/alerter -group \\\"$project_name\\\" -title \\\"Claude Code - $project_name\\\" -message \\\"$msg\\\" -actions \\\"Open\\\" -closeLabel \\\"Dismiss\\\" -timeout 0\"
-
-  # Add sound if CLAUDE_NOTIFY_SOUND is not set to 'off'
-  if [ \"${CLAUDE_NOTIFY_SOUND:-on}\" != \"off\" ] && [ -n \"\$sound\" ]; then
-    alerter_cmd=\"\$alerter_cmd -sound \\\"\$sound\\\"\"
-  fi
-
   debug_log \"Running alerter with sound: \$sound\"
 
+  # Play sound via afplay (non-blocking)
+  if [ \"${CLAUDE_NOTIFY_SOUND:-on}\" != \"off\" ] && [ -n \"\$sound\" ]; then
+    sound_file=\"/System/Library/Sounds/\${sound}.aiff\"
+    if [ -f \"\$sound_file\" ]; then
+      afplay \"\$sound_file\" &
+    fi
+  fi
+
   # Show notification using alerter with project name in title
-  click_result=\$(eval \"\$alerter_cmd\" 2>/dev/null)
+  click_result=\$(\"\${plugin_root}/alerter\" -group \"$project_name\" -title \"Claude Code - $project_name\" -message \"$msg\" -actions \"Open\" -closeLabel \"Dismiss\" -timeout 0 2>/dev/null)
 
   # Debug logging
   debug_log \"Click result: [\$click_result]\"

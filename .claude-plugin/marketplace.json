@@ -1,6 +1,33 @@
 {
-  "displayName": "Claude Code Boomerang",
-  "shortDescription": "Get notified when tasks complete. Click to jump back to VS Code.",
-  "icon": "🪃",
-  "categories": ["productivity", "notifications"]
+  "name": "claude-code-boomerang",
+  "owner": {
+    "name": "quanru",
+    "email": "quanruzhuoxiu@gmail.com"
+  },
+  "metadata": {
+    "description": "Claude Code Boomerang - Desktop notifications with click-to-jump",
+    "version": "1.0.0"
+  },
+  "plugins": [{
+    "name": "claude-code-boomerang",
+    "source": "./",
+    "description": "Desktop notifications when Claude Code tasks complete. Click to jump to VS Code.",
+    "version": "1.0.0",
+    "author": {
+      "name": "quanru",
+      "email": "quanruzhuoxiu@gmail.com"
+    },
+    "repository": "https://github.com/quanru/claude-code-boomerang",
+    "license": "MIT",
+    "keywords": [
+      "notifications",
+      "alerts",
+      "productivity",
+      "vscode",
+      "macos",
+      "hooks"
+    ],
+    "category": "productivity",
+    "tags": ["notifications", "hooks", "alerts", "vscode", "cursor"]
+  }]
 }

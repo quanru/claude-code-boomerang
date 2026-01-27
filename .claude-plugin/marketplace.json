@@ -1,0 +1,6 @@
+{
+  "displayName": "Claude Code Boomerang",
+  "shortDescription": "Get notified when tasks complete. Click to jump back to VS Code.",
+  "icon": "🪃",
+  "categories": ["productivity", "notifications"]
+}

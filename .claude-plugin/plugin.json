@@ -1,0 +1,12 @@
+{
+  "name": "claude-code-boomerang",
+  "version": "1.0.0",
+  "description": "Desktop notifications when Claude Code tasks complete. Click to jump to VS Code.",
+  "author": {
+    "name": "quanru",
+    "email": "quanruzhuoxiu@gmail.com"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/quanru/claude-code-boomerang",
+  "keywords": ["notifications", "alerts", "productivity", "vscode", "macos"]
+}

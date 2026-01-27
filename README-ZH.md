@@ -7,52 +7,78 @@
 ## 功能特性
 
 - ✅ 常驻通知，不会自动消失
-- ✅ 点击通知跳转到 VS Code 工作区
+- ✅ 点击通知跳转到你的 IDE 工作区（支持 VS Code、Cursor、WebStorm、IntelliJ、PyCharm、GoLand）
+- ✅ 自动检测 IDE 类型
+- ✅ 不同事件使用不同的提示音
 - ✅ 每个项目只显示一个通知
 - ✅ 已在目标窗口时自动跳过
 - ✅ 零依赖（macOS 原生 + alerter）
+- ✅ 支持多种 hook 类型：计划就绪、提问、任务完成、子任务完成
 
 ## 快速安装
 
-### 一键安装（推荐）
+### 插件安装
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/quanru/claude-code-boomerang/main/install.sh | bash
+# 1. 添加市场
+/plugin marketplace add quanru/claude-code-boomerang
+
+# 2. 安装插件
+/plugin install claude-code-boomerang
+
+# 3. 重启 Claude Code
 ```
 
-安装脚本会自动完成：
-- 克隆仓库到 `~/.claude/hooks/notify`
-- 配置 hooks 到 `~/.claude/settings.json`
-- 设置所有必要权限
+完成！插件会自动设置所有必要的 hooks。
 
-### 手动安装
+## 支持的 IDE
 
-```bash
-# 克隆仓库
-git clone https://github.com/quanru/claude-code-boomerang ~/.claude/hooks/notify
+插件会自动检测你的 IDE，点击通知时打开正确的工作区：
 
-# 运行安装脚本
-~/.claude/hooks/notify/install.sh
-```
+| IDE | 自动检测 | URL Scheme |
+|-----|---------|------------|
+| VS Code | ✅ | `vscode://file` |
+| Cursor | ✅ | `cursor://file` |
+| WebStorm | ✅ | `webstorm://open?file=` |
+| IntelliJ IDEA | ✅ | `idea://open?file=` |
+| PyCharm | ✅ | `pycharm://open?file=` |
+| GoLand | ✅ | `goland://open?file=` |
 
-完成！重启 Claude Code 即可使用。
+检测基于 `__CFBundleIdentifier` 环境变量。
+
+## 支持的 Hooks
+
+插件监听 4 种 Claude Code hooks，每种使用不同的提示音：
+
+| Hook | 触发时机 | 通知内容 | 提示音 |
+|------|---------|----------|--------|
+| **PreToolUse** | ExitPlanMode 之前 | 📋 Plan Ready | Hero |
+| **PreToolUse** | AskUserQuestion 之前 | ❓ Question | Glass |
+| **Notification** | 权限提示 | ❓ Notification | Glass |
+| **Stop** | 主任务完成 | ✅ Task Completed | Ping |
+| **SubagentStop** | 子任务完成 | ✅ Subagent Completed | Basso |
 
 ## 配置（可选）
 
-启用调试日志，在 `~/.claude/settings.json` 中添加：
+在 `~/.claude/settings.json` 中配置插件：
 
 ```json
 {
   "env": {
-    "CLAUDE_NOTIFY_DEBUG": "true"
+    "CLAUDE_NOTIFY_DEBUG": "true",
+    "CLAUDE_NOTIFY_SOUND": "on"
   }
 }
 ```
 
+**可用选项**:
+- `CLAUDE_NOTIFY_DEBUG`: 启用调试日志（`"true"` 或 `"false"`）
+- `CLAUDE_NOTIFY_SOUND`: 控制通知音效（`"on"` 或 `"off"`，默认：`"on"`）
+
 ## 卸载
 
 ```bash
-~/.claude/hooks/notify/uninstall.sh
+/plugin uninstall claude-code-boomerang
 ```
 
 ## 了解更多

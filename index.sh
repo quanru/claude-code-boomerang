@@ -186,11 +186,11 @@ nohup bash -c "
 
   debug_log \"Running alerter with sound: \$sound\"
 
-  # Play sound via afplay (non-blocking)
+  # Play sound with delay so notification popup appears first
   if [ \"${CLAUDE_NOTIFY_SOUND:-on}\" != \"off\" ] && [ -n \"\$sound\" ]; then
     sound_file=\"/System/Library/Sounds/\${sound}.aiff\"
     if [ -f \"\$sound_file\" ]; then
-      afplay \"\$sound_file\" &
+      (sleep 0.3 && afplay \"\$sound_file\") &
     fi
   fi
 

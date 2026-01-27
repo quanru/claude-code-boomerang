@@ -48,7 +48,7 @@ Detection is based on the `__CFBundleIdentifier` environment variable.
 
 ## Supported Hooks
 
-The plugin monitors 4 types of Claude Code hooks with different sounds:
+The plugin monitors 3 types of Claude Code hooks with different sounds:
 
 | Hook | Trigger | Notification | Sound |
 |------|---------|-------------|-------|
@@ -56,7 +56,6 @@ The plugin monitors 4 types of Claude Code hooks with different sounds:
 | **PreToolUse** | Before AskUserQuestion | ❓ Question | Glass |
 | **Notification** | Permission prompts | ❓ Notification | Glass |
 | **Stop** | Main task completed | ✅ Task Completed | Ping |
-| **SubagentStop** | Subtask completed | ✅ Subagent Completed | Basso |
 
 ## Configuration (Optional)
 

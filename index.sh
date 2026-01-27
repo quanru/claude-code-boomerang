@@ -173,10 +173,6 @@ case "$hook_type" in
     msg="✅ Task Completed"
     sound="Ping"
     ;;
-  SubagentStop)
-    msg="✅ Subagent Completed"
-    sound="Basso"
-    ;;
   *)
     msg="🔔 Task Update"
     sound="default"

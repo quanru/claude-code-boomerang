@@ -34,17 +34,6 @@
           }
         ]
       }
-    ],
-    "SubagentStop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/index.sh SubagentStop",
-            "timeout": 30
-          }
-        ]
-      }
     ]
   }
 }

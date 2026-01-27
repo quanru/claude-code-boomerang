@@ -48,7 +48,7 @@
 
 ## 支持的 Hooks
 
-插件监听 4 种 Claude Code hooks，每种使用不同的提示音：
+插件监听 3 种 Claude Code hooks，每种使用不同的提示音：
 
 | Hook | 触发时机 | 通知内容 | 提示音 |
 |------|---------|----------|--------|
@@ -56,7 +56,6 @@
 | **PreToolUse** | AskUserQuestion 之前 | ❓ Question | Glass |
 | **Notification** | 权限提示 | ❓ Notification | Glass |
 | **Stop** | 主任务完成 | ✅ Task Completed | Ping |
-| **SubagentStop** | 子任务完成 | ✅ Subagent Completed | Basso |
 
 ## 配置（可选）
 

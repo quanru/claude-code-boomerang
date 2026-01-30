@@ -141,13 +141,14 @@ current_app="${front_app_info%%|*}"
 bundle_id="${front_app_info##*|}"
 debug_log "current_app: $current_app, bundle_id: $bundle_id"
 
+# Check if already in target window (notification will auto-dismiss)
+in_target_window="false"
 if [ "$bundle_id" = "com.microsoft.VSCode" ]; then
   window_title=$(osascript -e "tell application \"System Events\" to get name of first window of application process \"$current_app\"" 2>/dev/null)
   debug_log "window_title: $window_title"
-  # If window title contains project name, skip notification
   if [[ "$window_title" == *"$project_name"* ]]; then
-    debug_log "SKIPPED: Already in target window ($project_name)"
-    exit 0
+    debug_log "Already in target window, will show auto-dismiss notification"
+    in_target_window="true"
   fi
 fi
 
@@ -189,6 +190,7 @@ nohup bash -c "
   debug_enabled=\"$CLAUDE_NOTIFY_DEBUG\"
   ide_scheme=\"$ide_scheme\"
   sound=\"$sound\"
+  in_target_window=\"$in_target_window\"
 
   # Conditional logging function
   debug_log() {
@@ -208,7 +210,13 @@ nohup bash -c "
   fi
 
   # Show notification using alerter with project name in title
-  click_result=\$(\"\${plugin_root}/alerter\" -group \"$project_name\" -title \"Claude Code - $project_name\" -message \"$msg\" -actions \"Open\" -closeLabel \"Dismiss\" -timeout 0 2>/dev/null)
+  # If already in target window, auto-dismiss after 5 seconds; otherwise persist
+  if [ \"\$in_target_window\" = \"true\" ]; then
+    notify_timeout=5
+  else
+    notify_timeout=0
+  fi
+  click_result=\$(\"\${plugin_root}/alerter\" -group \"$project_name\" -title \"Claude Code - $project_name\" -message \"$msg\" -actions \"Open\" -closeLabel \"Dismiss\" -timeout \$notify_timeout -contentImage \"\${plugin_root}/icon.png\" 2>/dev/null)
 
   # Debug logging
   debug_log \"Click result: [\$click_result]\"
@@ -225,7 +233,56 @@ nohup bash -c "
         ide_url=\"\${ide_scheme}\${project_dir}\"
       fi
       debug_log \"Opening: \$ide_url\"
-      open \"\$ide_url\"
+
+      # Smart VS Code window activation: prefer existing windows over opening new ones
+      # Priority: exact match > parent directory match > new window
+      project_basename=\$(basename \"\$project_dir\")
+      activated=\$(osascript -e \"
+        tell application \\\"System Events\\\"
+          set vscodeProcs to (application processes whose name contains \\\"Code\\\")
+          if (count of vscodeProcs) > 0 then
+            set vscodeProc to item 1 of vscodeProcs
+            tell application process (name of vscodeProc)
+              set frontmost to true
+              set exactMatch to missing value
+              set parentMatch to missing value
+
+              repeat with w in windows
+                set winTitle to name of w
+                -- Exact match: window title contains current directory name
+                if winTitle contains \\\"\$project_basename\\\" then
+                  set exactMatch to w
+                  exit repeat
+                end if
+                -- Parent directory match: project_dir contains window title as path component
+                if parentMatch is missing value then
+                  if \\\"\$project_dir\\\" contains (\\\"/\\\" & winTitle & \\\"/\\\") then
+                    set parentMatch to w
+                  end if
+                end if
+              end repeat
+
+              if exactMatch is not missing value then
+                perform action \\\"AXRaise\\\" of exactMatch
+                return \\\"activated:exact\\\"
+              else if parentMatch is not missing value then
+                perform action \\\"AXRaise\\\" of parentMatch
+                return \\\"activated:parent\\\"
+              end if
+            end tell
+            return \\\"no-match\\\"
+          end if
+        end tell
+        return \\\"not-running\\\"
+      \")
+
+      debug_log \"Window activation result: \$activated\"
+
+      # Only use URL scheme when no matching window found
+      if [[ \"\$activated\" != activated:* ]]; then
+        debug_log \"No matching window, opening new: \$ide_url\"
+        open \"\$ide_url\"
+      fi
       debug_log \"open command completed\"
     else
       debug_log \"ERROR: CLAUDE_PROJECT_DIR is empty\"

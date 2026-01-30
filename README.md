@@ -6,12 +6,12 @@
 
 ## Features
 
-- ✅ Persistent notifications that won't auto-dismiss
+- ✅ Persistent notifications (auto-dismiss after 5s when already in target window)
 - ✅ Click to jump to your IDE workspace (VS Code, Cursor, WebStorm, IntelliJ, PyCharm, GoLand)
+- ✅ Smart window activation: prefer existing windows, supports parent directory matching
 - ✅ Auto-detect IDE from environment
 - ✅ Different notification sounds for different events
 - ✅ Only one notification per project
-- ✅ Auto-skip when already in target window
 - ✅ Zero dependencies (macOS native + alerter)
 - ✅ Support multiple hook types: Plan Ready, Questions, Task Complete, Subagent Complete
 

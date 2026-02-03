@@ -65,7 +65,10 @@ Configure the plugin in `~/.claude/settings.json`:
 {
   "env": {
     "CLAUDE_NOTIFY_DEBUG": "true",
-    "CLAUDE_NOTIFY_SOUND": "on"
+    "CLAUDE_NOTIFY_SOUND": "on",
+    "CLAUDE_NOTIFY_SOUND_PLAN": "Hero",
+    "CLAUDE_NOTIFY_SOUND_QUESTION": "Glass",
+    "CLAUDE_NOTIFY_SOUND_COMPLETE": "Ping"
   }
 }
 ```
@@ -73,6 +76,11 @@ Configure the plugin in `~/.claude/settings.json`:
 **Available options**:
 - `CLAUDE_NOTIFY_DEBUG`: Enable debug logging (`"true"` or `"false"`)
 - `CLAUDE_NOTIFY_SOUND`: Control notification sounds (`"on"` or `"off"`, default: `"on"`)
+- `CLAUDE_NOTIFY_SOUND_PLAN`: Plan Ready sound (default: `"Hero"`)
+- `CLAUDE_NOTIFY_SOUND_QUESTION`: Question/Notification sound (default: `"Glass"`)
+- `CLAUDE_NOTIFY_SOUND_COMPLETE`: Task Completed sound (default: `"Ping"`)
+
+**Available sounds**: Basso, Blow, Bottle, Frog, Funk, Glass, Hero, Morse, Ping, Pop, Purr, Sosumi, Submarine, Tink
 
 ## Uninstall
 

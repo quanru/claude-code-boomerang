@@ -153,30 +153,31 @@ if [ "$bundle_id" = "com.microsoft.VSCode" ]; then
 fi
 
 # Generate message and sound based on hook type
+# Sounds can be customized via environment variables
 case "$hook_type" in
   PreToolUse)
     if [ "$tool_name" = "ExitPlanMode" ]; then
       msg="📋 Plan Ready"
-      sound="Hero"
+      sound="${CLAUDE_NOTIFY_SOUND_PLAN:-Hero}"
     elif [ "$tool_name" = "AskUserQuestion" ]; then
       msg="❓ Question"
-      sound="Glass"
+      sound="${CLAUDE_NOTIFY_SOUND_QUESTION:-Glass}"
     else
       msg="⚡ Interactive Tool"
-      sound="Glass"
+      sound="${CLAUDE_NOTIFY_SOUND_QUESTION:-Glass}"
     fi
     ;;
   Notification)
     msg="❓ Notification"
-    sound="Glass"
+    sound="${CLAUDE_NOTIFY_SOUND_QUESTION:-Glass}"
     ;;
   Stop)
     msg="✅ Task Completed"
-    sound="Ping"
+    sound="${CLAUDE_NOTIFY_SOUND_COMPLETE:-Ping}"
     ;;
   *)
     msg="🔔 Task Update"
-    sound="default"
+    sound="${CLAUDE_NOTIFY_SOUND_DEFAULT:-default}"
     ;;
 esac
 
@@ -223,7 +224,7 @@ nohup bash -c "
   debug_log \"CLAUDE_PROJECT_DIR: [\$project_dir]\"
 
   # Open IDE if clicked
-  if [ \"\$click_result\" = \"@CONTENTCLICKED\" ] || [ \"\$click_result\" = \"Open\" ] || [ \"\$click_result\" = \"@TIMEOUT\" ]; then
+  if [ \"\$click_result\" = \"@CONTENTCLICKED\" ] || [ \"\$click_result\" = \"Open\" ]; then
     debug_log \"Condition matched, attempting to open IDE\"
     if [ -n \"\$project_dir\" ]; then
       # Build IDE URL (JetBrains uses ?file=, others use direct path)

@@ -65,7 +65,10 @@
 {
   "env": {
     "CLAUDE_NOTIFY_DEBUG": "true",
-    "CLAUDE_NOTIFY_SOUND": "on"
+    "CLAUDE_NOTIFY_SOUND": "on",
+    "CLAUDE_NOTIFY_SOUND_PLAN": "Hero",
+    "CLAUDE_NOTIFY_SOUND_QUESTION": "Glass",
+    "CLAUDE_NOTIFY_SOUND_COMPLETE": "Ping"
   }
 }
 ```
@@ -73,6 +76,11 @@
 **可用选项**:
 - `CLAUDE_NOTIFY_DEBUG`: 启用调试日志（`"true"` 或 `"false"`）
 - `CLAUDE_NOTIFY_SOUND`: 控制通知音效（`"on"` 或 `"off"`，默认：`"on"`）
+- `CLAUDE_NOTIFY_SOUND_PLAN`: Plan Ready 提示音（默认：`"Hero"`）
+- `CLAUDE_NOTIFY_SOUND_QUESTION`: Question/Notification 提示音（默认：`"Glass"`）
+- `CLAUDE_NOTIFY_SOUND_COMPLETE`: Task Completed 提示音（默认：`"Ping"`）
+
+**可用声音**: Basso, Blow, Bottle, Frog, Funk, Glass, Hero, Morse, Ping, Pop, Purr, Sosumi, Submarine, Tink
 
 ## 卸载
 

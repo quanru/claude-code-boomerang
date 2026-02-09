@@ -279,10 +279,9 @@ nohup bash -c "
 
       debug_log \"Window activation result: \$activated\"
 
-      # Only use URL scheme when no matching window found
+      # Only activate existing windows, do not open new ones
       if [[ \"\$activated\" != activated:* ]]; then
-        debug_log \"No matching window, opening new: \$ide_url\"
-        open \"\$ide_url\"
+        debug_log \"No matching window found, skipping (window may have been closed)\"
       fi
       debug_log \"open command completed\"
     else

@@ -235,27 +235,24 @@ nohup bash -c "
       fi
       debug_log \"Opening: \$ide_url\"
 
-      # Smart VS Code window activation: prefer existing windows over opening new ones
-      # Priority: exact match > parent directory match > new window
+      # Smart VS Code window activation: find matching window and activate via open -a
       project_basename=\$(basename \"\$project_dir\")
       activated=\$(osascript -e \"
         tell application \\\"System Events\\\"
           set vscodeProcs to (application processes whose name contains \\\"Code\\\")
           if (count of vscodeProcs) > 0 then
             set vscodeProc to item 1 of vscodeProcs
-            tell application process (name of vscodeProc)
-              set frontmost to true
+            set appName to name of vscodeProc
+            tell application process appName
               set exactMatch to missing value
               set parentMatch to missing value
 
               repeat with w in windows
                 set winTitle to name of w
-                -- Exact match: window title contains current directory name
                 if winTitle contains \\\"\$project_basename\\\" then
                   set exactMatch to w
                   exit repeat
                 end if
-                -- Parent directory match: project_dir contains window title as path component
                 if parentMatch is missing value then
                   if \\\"\$project_dir\\\" contains (\\\"/\\\" & winTitle & \\\"/\\\") then
                     set parentMatch to w
@@ -265,10 +262,10 @@ nohup bash -c "
 
               if exactMatch is not missing value then
                 perform action \\\"AXRaise\\\" of exactMatch
-                return \\\"activated:exact\\\"
+                return \\\"found:\\\" & appName
               else if parentMatch is not missing value then
                 perform action \\\"AXRaise\\\" of parentMatch
-                return \\\"activated:parent\\\"
+                return \\\"found:\\\" & appName
               end if
             end tell
             return \\\"no-match\\\"
@@ -279,8 +276,12 @@ nohup bash -c "
 
       debug_log \"Window activation result: \$activated\"
 
-      # Only activate existing windows, do not open new ones
-      if [[ \"\$activated\" != activated:* ]]; then
+      if [[ \"\$activated\" == found:* ]]; then
+        # Use open -a to reliably bring the app to foreground (AXRaise alone is unreliable from background processes)
+        app_name=\"\${activated#found:}\"
+        debug_log \"Activating app: \$app_name\"
+        open -a \"\$app_name\"
+      else
         debug_log \"No matching window found, skipping (window may have been closed)\"
       fi
       debug_log \"open command completed\"

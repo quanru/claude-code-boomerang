@@ -5,48 +5,30 @@
 # Hook type from first argument
 hook_type="$1"
 
-# Detect IDE and get URL scheme
-detect_ide_scheme() {
+# Detect IDE CLI command name from bundle identifier
+detect_ide_cli() {
   local bundle_id="$__CFBundleIdentifier"
 
   if [ -z "$bundle_id" ]; then
-    echo "vscode://file"  # fallback
+    echo "code"  # fallback
     return
   fi
 
   # Enable case-insensitive matching
   shopt -s nocasematch
 
-  # Match bundle identifier patterns
   case "$bundle_id" in
-    *vscode*)
-      echo "vscode://file"
-      ;;
-    *todesktop*)
-      echo "cursor://file"
-      ;;
-    *intellij*)
-      echo "idea://open?file="
-      ;;
-    *webstorm*)
-      echo "webstorm://open?file="
-      ;;
-    *pycharm*)
-      echo "pycharm://open?file="
-      ;;
-    *goland*)
-      echo "goland://open?file="
-      ;;
-    *)
-      echo "vscode://file"  # fallback to vscode
-      ;;
+    *vscode*)        echo "code" ;;
+    *todesktop*)     echo "cursor" ;;
+    *windsurf*)      echo "windsurf" ;;
+    *)               echo "code" ;;  # fallback
   esac
 
   # Restore default case sensitivity
   shopt -u nocasematch
 }
 
-ide_scheme=$(detect_ide_scheme)
+ide_cli=$(detect_ide_cli)
 
 # Use plugin root if available, otherwise fall back to default path
 if [ -n "$CLAUDE_PLUGIN_ROOT" ]; then
@@ -62,7 +44,7 @@ debug_log() {
   fi
 }
 
-debug_log "Detected IDE scheme: $ide_scheme (bundle: $__CFBundleIdentifier)"
+debug_log "Detected IDE CLI: $ide_cli (bundle: $__CFBundleIdentifier)"
 
 # Log rotation function
 log_rotate() {
@@ -189,7 +171,7 @@ nohup bash -c "
   log_file=\"\${plugin_root}/debug.log\"
   project_dir=\"$CLAUDE_PROJECT_DIR\"
   debug_enabled=\"$CLAUDE_NOTIFY_DEBUG\"
-  ide_scheme=\"$ide_scheme\"
+  ide_cli=\"$ide_cli\"
   sound=\"$sound\"
   in_target_window=\"$in_target_window\"
 
@@ -227,47 +209,23 @@ nohup bash -c "
   if [ \"\$click_result\" = \"@CONTENTCLICKED\" ] || [ \"\$click_result\" = \"Open\" ]; then
     debug_log \"Condition matched, attempting to open IDE\"
     if [ -n \"\$project_dir\" ]; then
-      # Build IDE URL (JetBrains uses ?file=, others use direct path)
-      if [[ \"\$ide_scheme\" == *\"?file=\"* ]]; then
-        ide_url=\"\${ide_scheme}\${project_dir}\"
-      else
-        ide_url=\"\${ide_scheme}\${project_dir}\"
-      fi
-      debug_log \"Opening: \$ide_url\"
-
-      # Smart VS Code window activation: find matching window and activate via bundle id
+      # Check if a matching window exists before activating
       project_basename=\$(basename \"\$project_dir\")
-      activated=\$(osascript -e \"
+      window_found=\$(osascript -e \"
         tell application \\\"System Events\\\"
           set vscodeProcs to (application processes whose name contains \\\"Code\\\")
           if (count of vscodeProcs) > 0 then
             set vscodeProc to item 1 of vscodeProcs
-            set appName to name of vscodeProc
-            set bundleId to bundle identifier of vscodeProc
-            tell application process appName
-              set exactMatch to missing value
-              set parentMatch to missing value
-
+            tell application process (name of vscodeProc)
               repeat with w in windows
                 set winTitle to name of w
                 if winTitle contains \\\"\$project_basename\\\" then
-                  set exactMatch to w
-                  exit repeat
+                  return \\\"found\\\"
                 end if
-                if parentMatch is missing value then
-                  if \\\"\$project_dir\\\" contains (\\\"/\\\" & winTitle & \\\"/\\\") then
-                    set parentMatch to w
-                  end if
+                if \\\"\$project_dir\\\" contains (\\\"/\\\" & winTitle & \\\"/\\\") then
+                  return \\\"found\\\"
                 end if
               end repeat
-
-              if exactMatch is not missing value then
-                perform action \\\"AXRaise\\\" of exactMatch
-                return \\\"found:\\\" & bundleId
-              else if parentMatch is not missing value then
-                perform action \\\"AXRaise\\\" of parentMatch
-                return \\\"found:\\\" & bundleId
-              end if
             end tell
             return \\\"no-match\\\"
           end if
@@ -275,17 +233,14 @@ nohup bash -c "
         return \\\"not-running\\\"
       \")
 
-      debug_log \"Window activation result: \$activated\"
+      debug_log \"Window check result: \$window_found\"
 
-      if [[ \"\$activated\" == found:* ]]; then
-        # Use open -b to reliably bring the app to foreground via bundle identifier
-        bundle_id=\"\${activated#found:}\"
-        debug_log \"Activating app with bundle id: \$bundle_id\"
-        open -b \"\$bundle_id\"
+      if [ \"\$window_found\" = \"found\" ]; then
+        debug_log \"Activating with: \$ide_cli \$project_dir\"
+        \"\$ide_cli\" \"\$project_dir\"
       else
-        debug_log \"No matching window found, skipping (window may have been closed)\"
+        debug_log \"No matching window found, skipping\"
       fi
-      debug_log \"open command completed\"
     else
       debug_log \"ERROR: CLAUDE_PROJECT_DIR is empty\"
     fi

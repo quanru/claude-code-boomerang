@@ -235,7 +235,7 @@ nohup bash -c "
       fi
       debug_log \"Opening: \$ide_url\"
 
-      # Smart VS Code window activation: find matching window and activate via open -a
+      # Smart VS Code window activation: find matching window and activate via bundle id
       project_basename=\$(basename \"\$project_dir\")
       activated=\$(osascript -e \"
         tell application \\\"System Events\\\"
@@ -243,6 +243,7 @@ nohup bash -c "
           if (count of vscodeProcs) > 0 then
             set vscodeProc to item 1 of vscodeProcs
             set appName to name of vscodeProc
+            set bundleId to bundle identifier of vscodeProc
             tell application process appName
               set exactMatch to missing value
               set parentMatch to missing value
@@ -262,10 +263,10 @@ nohup bash -c "
 
               if exactMatch is not missing value then
                 perform action \\\"AXRaise\\\" of exactMatch
-                return \\\"found:\\\" & appName
+                return \\\"found:\\\" & bundleId
               else if parentMatch is not missing value then
                 perform action \\\"AXRaise\\\" of parentMatch
-                return \\\"found:\\\" & appName
+                return \\\"found:\\\" & bundleId
               end if
             end tell
             return \\\"no-match\\\"
@@ -277,10 +278,10 @@ nohup bash -c "
       debug_log \"Window activation result: \$activated\"
 
       if [[ \"\$activated\" == found:* ]]; then
-        # Use open -a to reliably bring the app to foreground (AXRaise alone is unreliable from background processes)
-        app_name=\"\${activated#found:}\"
-        debug_log \"Activating app: \$app_name\"
-        open -a \"\$app_name\"
+        # Use open -b to reliably bring the app to foreground via bundle identifier
+        bundle_id=\"\${activated#found:}\"
+        debug_log \"Activating app with bundle id: \$bundle_id\"
+        open -b \"\$bundle_id\"
       else
         debug_log \"No matching window found, skipping (window may have been closed)\"
       fi

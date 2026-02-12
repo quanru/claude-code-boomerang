@@ -109,29 +109,18 @@ debug_log "tool_name: $tool_name"
 project_name=$(basename "$CLAUDE_PROJECT_DIR")
 debug_log "project_name: $project_name"
 
-# Check if current window is already the target VS Code window
-# Use bundle identifier for precise detection (VS Code = com.microsoft.VSCode)
-front_app_info=$(osascript -e '
+# Check if the IDE is the current foreground app (auto-dismiss notification if so)
+front_bundle=$(osascript -e '
 tell application "System Events"
-  set frontApp to first application process whose frontmost is true
-  set appName to name of frontApp
-  set bundleId to bundle identifier of frontApp
-  return appName & "|" & bundleId
+  return bundle identifier of (first application process whose frontmost is true)
 end tell
 ' 2>/dev/null)
-current_app="${front_app_info%%|*}"
-bundle_id="${front_app_info##*|}"
-debug_log "current_app: $current_app, bundle_id: $bundle_id"
+debug_log "front_bundle: $front_bundle, ide_bundle: $__CFBundleIdentifier"
 
-# Check if already in target window (notification will auto-dismiss)
 in_target_window="false"
-if [ "$bundle_id" = "com.microsoft.VSCode" ]; then
-  window_title=$(osascript -e "tell application \"System Events\" to get name of first window of application process \"$current_app\"" 2>/dev/null)
-  debug_log "window_title: $window_title"
-  if [[ "$window_title" == *"$project_name"* ]]; then
-    debug_log "Already in target window, will show auto-dismiss notification"
-    in_target_window="true"
-  fi
+if [ "$front_bundle" = "$__CFBundleIdentifier" ]; then
+  debug_log "IDE is in foreground, will show auto-dismiss notification"
+  in_target_window="true"
 fi
 
 # Generate message and sound based on hook type
@@ -209,38 +198,8 @@ nohup bash -c "
   if [ \"\$click_result\" = \"@CONTENTCLICKED\" ] || [ \"\$click_result\" = \"Open\" ]; then
     debug_log \"Condition matched, attempting to open IDE\"
     if [ -n \"\$project_dir\" ]; then
-      # Check if a matching window exists before activating
-      project_basename=\$(basename \"\$project_dir\")
-      window_found=\$(osascript -e \"
-        tell application \\\"System Events\\\"
-          set vscodeProcs to (application processes whose name contains \\\"Code\\\")
-          if (count of vscodeProcs) > 0 then
-            set vscodeProc to item 1 of vscodeProcs
-            tell application process (name of vscodeProc)
-              repeat with w in windows
-                set winTitle to name of w
-                if winTitle contains \\\"\$project_basename\\\" then
-                  return \\\"found\\\"
-                end if
-                if \\\"\$project_dir\\\" contains (\\\"/\\\" & winTitle & \\\"/\\\") then
-                  return \\\"found\\\"
-                end if
-              end repeat
-            end tell
-            return \\\"no-match\\\"
-          end if
-        end tell
-        return \\\"not-running\\\"
-      \")
-
-      debug_log \"Window check result: \$window_found\"
-
-      if [ \"\$window_found\" = \"found\" ]; then
-        debug_log \"Activating with: \$ide_cli \$project_dir\"
-        \"\$ide_cli\" \"\$project_dir\"
-      else
-        debug_log \"No matching window found, skipping\"
-      fi
+      debug_log \"Activating with: \$ide_cli \$project_dir\"
+      \"\$ide_cli\" \"\$project_dir\"
     else
       debug_log \"ERROR: CLAUDE_PROJECT_DIR is empty\"
     fi
